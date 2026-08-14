@@ -1,0 +1,64 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique @db.VarChar(80)
+  slug      String   @unique @db.VarChar(80)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  faqs         Faq[]
+  interactions Interaction[]
+
+  @@map("categories")
+}
+
+model Faq {
+  id                 String   @id @default(uuid()) @db.Uuid
+  question           String   @db.VarChar(500)
+  normalizedQuestion String   @unique @map("normalized_question") @db.VarChar(500)
+  answer             String
+  categoryId         String   @map("category_id") @db.Uuid
+  active             Boolean  @default(true)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  interactions Interaction[]
+
+  @@index([categoryId])
+  @@index([active])
+  @@index([normalizedQuestion(ops: raw("gist_trgm_ops"))], map: "faqs_normalized_question_trgm_idx", type: Gist)
+  @@map("faqs")
+}
+
+model Interaction {
+  id                 String   @id @default(uuid()) @db.Uuid
+  question           String   @db.VarChar(500)
+  normalizedQuestion String   @map("normalized_question") @db.VarChar(500)
+  matchedFaqId       String?  @map("matched_faq_id") @db.Uuid
+  similarityScore    Decimal? @map("similarity_score") @db.Decimal(5, 4)
+  answered           Boolean
+  categoryId         String?  @map("category_id") @db.Uuid
+  sessionId          String?  @map("session_id") @db.VarChar(64)
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  matchedFaq Faq?      @relation(fields: [matchedFaqId], references: [id], onDelete: SetNull)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([answered, createdAt])
+  @@index([categoryId, createdAt])
+  @@index([matchedFaqId])
+  @@index([normalizedQuestion])
+  @@map("interactions")
+}
+

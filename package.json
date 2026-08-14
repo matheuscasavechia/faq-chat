@@ -1,0 +1,28 @@
+{
+  "name": "faq-chatbot-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./backend\" --filter \"./frontend\" dev",
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "lint": "pnpm --recursive lint",
+    "test": "pnpm --recursive test",
+    "typecheck": "pnpm --recursive typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,css,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,css,md,yml,yaml}\"",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "prisma:migrate": "pnpm --filter backend prisma:migrate",
+    "prisma:seed": "pnpm --filter backend prisma:seed",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down -v"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2"
+  }
+}
