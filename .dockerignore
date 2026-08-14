@@ -1,0 +1,30 @@
+# Host-installed dependencies must never reach the image: the build stages run
+# their own pnpm install, and copying macOS binaries over it breaks native
+# modules such as the Prisma engines.
+node_modules
+**/node_modules
+.pnpm-store
+
+# Build output is produced inside the image
+dist
+**/dist
+*.tsbuildinfo
+
+# Secrets stay out of the build context
+.env
+**/.env
+**/.env.*
+!**/.env.example
+
+# Not needed to build
+.git
+.gitignore
+.dockerignore
+docker-compose.yml
+**/coverage
+**/*.log
+**/.DS_Store
+.idea
+.vscode
+README.md
+AI_USAGE.md
